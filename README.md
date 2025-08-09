@@ -4,44 +4,47 @@ This project is a simple guestbook application built following the steps outline
 
 It demonstrates how to build and deploy a full-stack SvelteKit application leveraging Cloudflare's serverless ecosystem, including:
 
-*   **Cloudflare Workers:** For running the SvelteKit backend logic on Cloudflare's edge network.
-*   **Cloudflare D1:** A serverless SQLite-compatible database.
-*   **SvelteKit:** A full-stack Svelte framework for building the frontend and backend.
-*   **Drizzle ORM:** A TypeScript ORM used to interact with the D1 database.
+- **Cloudflare Workers:** For running the SvelteKit backend logic on Cloudflare's edge network.
+- **Cloudflare D1:** A serverless SQLite-compatible database.
+- **SvelteKit:** A full-stack Svelte framework for building the frontend and backend.
+- **Drizzle ORM:** A TypeScript ORM used to interact with the D1 database.
 
 The result is a fast, globally distributed application with potentially zero infrastructure costs thanks to Cloudflare's generous free tiers.
 
 ## Tech Stack
 
-*   [SvelteKit](https://kit.svelte.dev/)
-*   [Cloudflare Workers](https://workers.cloudflare.com/)
-*   [Cloudflare D1](https://developers.cloudflare.com/d1/)
-*   [Drizzle ORM](https://orm.drizzle.team/)
-*   [TypeScript](https://www.typescriptlang.org/)
-*   [pnpm](https://pnpm.io/) (but `npm` or `yarn` can also be used)
+- [SvelteKit](https://kit.svelte.dev/)
+- [Cloudflare Workers](https://workers.cloudflare.com/)
+- [Cloudflare D1](https://developers.cloudflare.com/d1/)
+- [Drizzle ORM](https://orm.drizzle.team/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [pnpm](https://pnpm.io/) (but `npm` or `yarn` can also be used)
 
 ## Prerequisites
 
-*   A [Cloudflare account](https://dash.cloudflare.com/sign-up) (Free tier is sufficient).
-*   [Node.js](https://nodejs.org/) (LTS version recommended) installed locally.
-*   [pnpm](https://pnpm.io/installation) installed globally (or use `npm`/`yarn` and adjust commands accordingly).
-*   [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install/) installed and logged into your Cloudflare account (`wrangler login`).
+- A [Cloudflare account](https://dash.cloudflare.com/sign-up) (Free tier is sufficient).
+- [Node.js](https://nodejs.org/) (LTS version recommended) installed locally.
+- [pnpm](https://pnpm.io/installation) installed globally (or use `npm`/`yarn` and adjust commands accordingly).
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/install/) installed and logged into your Cloudflare account (`wrangler login`).
 
 ## Getting Started
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/jillesme/cloudflare-worker-svelte-guestbook.git
     cd cloudflare-worker-svelte-guestbook
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     pnpm install
     ```
 
 3.  **Set up local database environment:**
     Create a `.env` file in the root of the project and add the following line. This tells Drizzle where to find the local SQLite database file for `pnpm dev`.
+
     ```dotenv
     # .env
     DATABASE_URL=file:local.db
@@ -61,13 +64,14 @@ To run the application locally using the Vite development server (hot-reloading,
 pnpm dev
 ```
 
-Navigate to `http://localhost:5173` (or the port specified in the output). Changes made to your Svelte components or server routes will reload automatically. Note that Cloudflare bindings (like D1) are *not* available in this mode.
+Navigate to `http://localhost:5173` (or the port specified in the output). Changes made to your Svelte components or server routes will reload automatically. Note that Cloudflare bindings (like D1) are _not_ available in this mode.
 
 ## Local Preview (Miniflare)
 
 To run the application locally using Miniflare, which simulates the Cloudflare Workers environment (including D1 bindings stored locally):
 
 1.  **Ensure D1 is configured locally:** You might need to run the D1 migrations locally first if you haven't configured your remote D1 DB yet (see Cloudflare Setup section). Wrangler often prompts or handles this. If you encounter D1 errors, try:
+
     ```bash
     # Replace 'guestbook-db' if you used a different name in wrangler.jsonc
     wrangler d1 migrations apply guestbook-db --local
@@ -92,17 +96,18 @@ Migrations allow you to evolve your database schema over time.
     pnpm run db:make-migrations
     ```
 
-    *(Note: This uses `drizzle-kit generate`. The blog post initially mentioned `db:push`, but recommends `generate` for better tracking.)*
+    _(Note: This uses `drizzle-kit generate`. The blog post initially mentioned `db:push`, but recommends `generate` for better tracking.)_
+
 3.  **Apply migrations:**
-    *   **To local SQLite DB (`local.db` used by `pnpm dev`):**
+    - **To local SQLite DB (`local.db` used by `pnpm dev`):**
         ```bash
         pnpm run db:migrate
         ```
-    *   **To local D1 Preview DB (used by `pnpm preview`):** Replace `guestbook-db` with your D1 database name from `wrangler.jsonc`.
+    - **To local D1 Preview DB (used by `pnpm preview`):** Replace `guestbook-db` with your D1 database name from `wrangler.jsonc`.
         ```bash
         wrangler d1 migrations apply guestbook-db
         ```
-    *   **To remote D1 Production DB (before deploying):** Replace `guestbook-db` with your D1 database name.
+    - **To remote D1 Production DB (before deploying):** Replace `guestbook-db` with your D1 database name.
         ```bash
         wrangler d1 migrations apply guestbook-db --remote
         ```
@@ -113,9 +118,11 @@ Before deploying, you need to create a D1 database on Cloudflare and configure W
 
 1.  **Create the D1 Database:**
     Choose a unique name for your database (e.g., `guestbook-db`).
+
     ```bash
     wrangler d1 create guestbook-db
     ```
+
     Wrangler will output configuration details, including the `database_id`.
 
 2.  **Configure `wrangler.jsonc`:**
@@ -124,17 +131,17 @@ Before deploying, you need to create a D1 database on Cloudflare and configure W
     ```jsonc
     // wrangler.jsonc
     {
-      // ... other config
-      "compatibility_flags": ["nodejs_compat"], // Ensure this is present
-      "d1_databases": [
-        {
-          "binding": "DB", // Important: Must match usage in hooks.server.ts (event.platform.env.DB)
-          "database_name": "guestbook-db", // Use the name you chose
-          "database_id": "YOUR_DATABASE_ID_HERE", // Paste the ID from 'wrangler d1 create' output
-          "migrations_dir": "./src/lib/server/db/migrations" // Points to your migration files
-        }
-      ]
-      // ... other config (like assets)
+        // ... other config
+        "compatibility_flags": ["nodejs_compat"], // Ensure this is present
+        "d1_databases": [
+            {
+                "binding": "DB", // Important: Must match usage in hooks.server.ts (event.platform.env.DB)
+                "database_name": "guestbook-db", // Use the name you chose
+                "database_id": "YOUR_DATABASE_ID_HERE", // Paste the ID from 'wrangler d1 create' output
+                "migrations_dir": "./src/lib/server/db/migrations", // Points to your migration files
+            },
+        ],
+        // ... other config (like assets)
     }
     ```
 
@@ -149,6 +156,7 @@ Before deploying, you need to create a D1 database on Cloudflare and configure W
 
 1.  **Apply Migrations to Remote D1:**
     Ensure your remote D1 database schema is up-to-date.
+
     ```bash
     # Replace 'guestbook-db' with your D1 database name
     wrangler d1 migrations apply guestbook-db --remote
@@ -164,25 +172,28 @@ Wrangler will output the URL where your application is deployed (e.g., `https://
 
 ## Important Scripts
 
-*   `pnpm dev`: Run local dev server (Vite) with HMR. Uses local SQLite file (`.env`).
-*   `pnpm build`: Build the application for production.
-*   `pnpm preview`: Build and run locally using Miniflare (simulates CF Workers). Uses local D1 preview.
-*   `pnpm deploy`: Build and deploy to Cloudflare Workers. Uses remote D1.
-*   `pnpm run db:make-migrations`: Generate SQL migration files from schema changes.
-*   `pnpm run db:migrate`: Apply migrations to the local SQLite database (`local.db`).
-*   `pnpm run cf-typegen`: Generate TypeScript types based on `wrangler.jsonc`.
+- `pnpm dev`: Run local dev server (Vite) with HMR. Uses local SQLite file (`.env`).
+- `pnpm build`: Build the application for production.
+- `pnpm preview`: Build and run locally using Miniflare (simulates CF Workers). Uses local D1 preview.
+- `pnpm deploy`: Build and deploy to Cloudflare Workers. Uses remote D1.
+- `pnpm run db:make-migrations`: Generate SQL migration files from schema changes.
+- `pnpm run db:migrate`: Apply migrations to the local SQLite database (`local.db`).
+- `pnpm run cf-typegen`: Generate TypeScript types based on `wrangler.jsonc`.
 
 ## Key Configuration Files
 
-*   `svelte.config.js`: SvelteKit configuration (uses `@sveltejs/adapter-cloudflare`).
-*   `vite.config.ts`: Vite configuration.
-*   `wrangler.jsonc`: Cloudflare Wrangler configuration (Worker name, bindings, compatibility flags).
-*   `drizzle.config.ts`: Drizzle Kit configuration (schema path, migrations output).
-*   `tsconfig.json`: TypeScript configuration.
-*   `.env`: Environment variables for local development (e.g., `DATABASE_URL`).
-*   `src/app.d.ts`: App-level TypeScript declarations (including `Locals` and `Platform`).
-*   `src/hooks.server.ts`: SvelteKit server hooks (used here for DB client initialization).
-*   `src/lib/server/db/index.ts`: Database client initialization logic (handles D1 vs LibSQL).
-*   `src/lib/server/db/schema.ts`: Drizzle schema definition.
-*   `src/lib/server/db/migrations/`: Directory containing SQL migration files.
+- `svelte.config.js`: SvelteKit configuration (uses `@sveltejs/adapter-cloudflare`).
+- `vite.config.ts`: Vite configuration.
+- `wrangler.jsonc`: Cloudflare Wrangler configuration (Worker name, bindings, compatibility flags).
+- `drizzle.config.ts`: Drizzle Kit configuration (schema path, migrations output).
+- `tsconfig.json`: TypeScript configuration.
+- `.env`: Environment variables for local development (e.g., `DATABASE_URL`).
+- `src/app.d.ts`: App-level TypeScript declarations (including `Locals` and `Platform`).
+- `src/hooks.server.ts`: SvelteKit server hooks (used here for DB client initialization).
+- `src/lib/server/db/index.ts`: Database client initialization logic (handles D1 vs LibSQL).
+- `src/lib/server/db/schema.ts`: Drizzle schema definition.
+- `src/lib/server/db/migrations/`: Directory containing SQL migration files.
+
+```
+
 ```

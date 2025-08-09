@@ -1,0 +1,23 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+
+# Build outputs
+.svelte-kit/
+build/
+dist/
+
+# Database
+*.db
+*.sqlite
+
+# Environment
+.env
+.env.*
+
+# Generated files
+src/worker-configuration.d.ts
+src/lib/server/db/migrations/
+
+# Wrangler
+.wrangler/
