@@ -6,7 +6,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "svelte-guestbook",
   "main": ".svelte-kit/cloudflare/_worker.js",
-  "compatibility_date": "2025-04-06",
+  "compatibility_date": "2025-04-05",
   "compatibility_flags": ["nodejs_compat"],
   "assets": {
     "binding": "ASSETS",

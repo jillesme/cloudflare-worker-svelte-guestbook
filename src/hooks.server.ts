@@ -1,17 +1,9 @@
 import type { Handle } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
-import { createD1Client, createLibSqlClient } from '$lib/server/db';
-
-const db = env.DATABASE_URL ? createLibSqlClient(env.DATABASE_URL) : null;
+import { getDb } from '$lib/server/db';
 
 export const handle: Handle = async ({ event, resolve }) => {
-    if (event.platform?.env.DB) {
-        event.locals.db = createD1Client(event.platform.env.DB);
-    } else if (db) {
-        event.locals.db = db;
-    } else {
-        throw new Error('No database found');
-    }
+    event.locals.db = getDb(event.platform?.env, env.DATABASE_URL);
 
 	const response = await resolve(event);
 	return response;
