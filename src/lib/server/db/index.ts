@@ -3,9 +3,9 @@ import { drizzle as drizzleD1 } from "drizzle-orm/d1";
 import { createClient } from "@libsql/client";
 import * as schema from "./schema";
 
-export function getDb(platformEnv?: { DB?: D1Database }, databaseUrl?: string) {
-    if (platformEnv?.DB) {
-        return drizzleD1(platformEnv.DB, { schema });
+export function getDb(db?: D1Database, databaseUrl?: string) {
+    if (db) {
+        return drizzleD1(db, { schema });
     }
 
     if (databaseUrl) {
@@ -15,3 +15,5 @@ export function getDb(platformEnv?: { DB?: D1Database }, databaseUrl?: string) {
 
     throw new Error("No database configuration found");
 }
+
+export type DrizzleClient = ReturnType<typeof getDb>;
