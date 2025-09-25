@@ -21,3 +21,4 @@ src/lib/server/db/migrations/
 
 # Wrangler
 .wrangler/
+wrangler.jsonc

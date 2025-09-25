@@ -10,10 +10,10 @@
     "compatibility_flags": ["nodejs_compat"],
     "assets": {
         "binding": "ASSETS",
-        "directory": ".svelte-kit/cloudflare",
+        "directory": ".svelte-kit/cloudflare"
     },
     "observability": {
-        "enabled": true,
+        "enabled": true
     },
     /**
      * Smart Placement
@@ -32,9 +32,9 @@
             "binding": "DB",
             "database_name": "guestbook-db",
             "database_id": "18e9dbd0-4ff8-457e-99bd-b35d5497a529",
-            "migrations_dir": "./src/lib/server/db/migrations",
-        },
-    ],
+            "migrations_dir": "./src/lib/server/db/migrations"
+        }
+    ]
 
     /**
      * Environment Variables
