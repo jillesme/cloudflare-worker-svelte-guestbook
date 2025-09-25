@@ -1,5 +1,5 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql, type InferSelectModel } from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 export const guestbookMessages = sqliteTable("guestbook_messages", {
     id: integer().primaryKey(),
@@ -10,5 +10,3 @@ export const guestbookMessages = sqliteTable("guestbook_messages", {
         .notNull()
         .default(sql`CURRENT_TIMESTAMP`),
 });
-
-export type GuestBookMessage = InferSelectModel<typeof guestbookMessages>;
