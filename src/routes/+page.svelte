@@ -1,6 +1,8 @@
 <script lang="ts">
     import type { PageProps } from "./$types";
     import { enhance } from "$app/forms";
+    import { authClient } from "$lib/auth-client";
+    import { invalidateAll } from "$app/navigation";
 
     let { data }: PageProps = $props();
 
@@ -15,12 +17,20 @@
     documentation
 </p>
 
+{#if data.session?.user}
+    <img src={data.session.user.image} alt={data.session.user.name} />
+    Hello {data.session.user.name}
+    <button onclick={async () => { await authClient.signOut(); invalidateAll() }}>Logout</button>
+{:else}
+    <a href="/login">Login</a>
+{/if}
+
 <div>
     {#each data.messages as message}
         <div class="message">
-            <h3>{message.name} ({message.country})</h3>
-            <p>{message.message}</p>
-            <span class="date">Posted on {message.createdAt}</span>
+            <h3>{message.user.name} ({message.guestbook_messages.country})</h3>
+            <p>{message.guestbook_messages.message}</p>
+            <span class="date">Posted on {message.guestbook_messages.createdAt}</span>
         </div>
     {:else}
         <p>No messages yet</p>
@@ -29,11 +39,12 @@
 
 <hr />
 
+{#if !data.session?.user}
+    <p>You must be logged in to post a message</p>
+    <a href="/login">Login</a>
+    <hr />
+{:else}
 <form method="post" use:enhance>
-    <div>
-        <label for="name">Name</label>
-        <input id="name" type="text" bind:value={name} name="name" />
-    </div>
     <div>
         <label for="msg">Message</label>
         <textarea id="msg" bind:value={message} name="message"></textarea>
@@ -41,6 +52,7 @@
     </div>
     <button type="submit" disabled={characterCount < 5}>Post</button>
 </form>
+{/if}
 
 <style>
     form div {
@@ -53,7 +65,6 @@
         margin-bottom: 0.25rem;
     }
 
-    input,
     textarea {
         width: 100%;
         padding: 0.5rem;
