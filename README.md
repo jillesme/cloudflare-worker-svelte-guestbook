@@ -1,5 +1,9 @@
 # SvelteKit Guestbook on Cloudflare Workers & D1
 
+# [Video One - Deploy a SvelteKit Application to Cloudflare Workers with Drizzle & D1](https://www.youtube.com/watch?v=ZZaExhqW5II)
+
+# [Video Two - BetterAuth and Google Login on Cloudflare Workers with SvelteKit](https://www.youtube.com/watch?v=zIvGs0FOMvA)
+
 This project is a simple guestbook application built following the steps outlined in [Cloudflare Workers, SvelteKit, Drizzle, and D1: Up and Running](https://jilles.me/cloudflare-workers-sveltekit-drizzle-and-d1-up-and-running)
 
 It demonstrates how to build and deploy a full-stack SvelteKit application leveraging Cloudflare's serverless ecosystem, including:
